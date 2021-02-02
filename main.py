@@ -13,6 +13,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+BLUE = (0,0,255)
 left = 50
 top = 50
 width = 40
@@ -60,8 +61,22 @@ class BouncingRectangle(pygame.sprite.Sprite):
         pygame.draw.line(self.image, self.x_colour, [0, self.rect.height], [self.rect.width, 0], 10)
 
 
+class Hostile(pygame.sprite.Sprite):
+    def __init__(self, width, height):
+        super().__init__()
+        self.image = pygame.Surface([width, height])
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+
+class Walls(pygame.sprite.Sprite):
+    def __init__(self, width, height):
+        super().__init__()
+        self.image = pygame.Surface([width, height])
+        self.image.fill(BLUE)
+        self.rect = self.image.get_rect()
+
 class MyCharacter(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, width, height):
         super().__init__()
         self.max_health = 3
         self.attack_damage = 2
@@ -79,24 +94,22 @@ class MyCharacter(pygame.sprite.Sprite):
         Compares own rectangle to sprite rectangle and checks for collisions
         Returns (True, [list of collided sprites]) if collisions have occurred
         Returns (False, []) if no collisions have occurred
-        :param hostile_group:
-        :return:
         '''
-        return (False, [])
-    # TODO collide health check function
+        if pygame.sprite.spritecollide(my_character, hostile_group, False):
+            return(True, [hostile_group])
+        else:
+            return(False, [])
 
-    def collide_wall_check(self, wall_group, direction):
+    def collide_wall_check(self, wall_group):
         '''
         Takes input of a sprite group categorized as walls
         Returns (True, collided wall) if a collision has occurred
         Returns (False, None) if a collision has not occurred
-        :param wall_group:
-        :param direction:
-        :return:
         '''
-
-        return (False, None)
-    # TODO collide wall check
+        if pygame.sprite.spritecollide(my_character, wall_group, False):
+            return(True, print('collided wall'))
+        else:
+            return (False, None)
 
     def damage_or_healing(self, amount):
         '''
@@ -105,8 +118,6 @@ class MyCharacter(pygame.sprite.Sprite):
         Changes your current health by the amount input
         returns False if current health <=0 (dead)
         returns True if current health > 0
-        :param amount:
-        :return:
         '''
         self.current_health += amount
 
@@ -121,24 +132,30 @@ class MyCharacter(pygame.sprite.Sprite):
         updates rectangle position by move_speed in that direction.
         checks if there is a wall and does not move if one is detected
         does not return anything
-        :param hostile_group:
-        :param wall_group:
-        :param direction:
-        :return:
         '''
         pass
     # TODO update (cant finish unless hostile and wall check are complete)
 
 class MyEnemy(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, width, height):
         super().__init__()
-        self.health = None
-        self.move_speed = None
+        self.health = 5
+        self.move_speed = 10
+
+        self.image = pygame.Surface([width, height])
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
 
     def collide_wall_check(self, wall_group, direction):
         return (False, None)
 
     def collide_hostile_check(self, hostile_group):
+        '''
+        Takes input of a sprite group categorized as hostile
+        Compares own rectangle to sprite rectangle and checks for collisions
+        Returns (True, [list of collided sprites]) if collisions have occurred
+        Returns (False, []) if no collisions have occurred
+        '''
         return (False, [])
 
     def update(self, wall_group, hostile_group, direction):
@@ -156,9 +173,19 @@ class Attack(pygame.sprite.Sprite):
         pass
 
 
-my_rectangle = BouncingRectangle(80, 80)
+my_hostile = Hostile(15, 15)
+hostile_group = pygame.sprite.Group()
+hostile_group.add(my_hostile)
+
+my_wall = Walls(5, 50)
+wall_group = pygame.sprite.Group()
+wall_group.add(my_wall)
+
+my_character = MyCharacter(50, 50)
+my_enemy = MyEnemy(30, 30)
 my_group = pygame.sprite.Group()
-my_group.add(my_rectangle)
+my_group.add(my_character)
+my_group.add(my_enemy)
 
 mos_pos = pygame.mouse.get_pos()
 
@@ -173,8 +200,10 @@ while True:
 
     DISPLAY.fill((BLACK))
 
-    my_group.update(mos_pos)
+    #my_group.update(mos_pos)
     my_group.draw(DISPLAY)
+    hostile_group.draw(DISPLAY)
+    wall_group.draw(DISPLAY)
 
     pygame.display.update()
 
