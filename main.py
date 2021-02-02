@@ -1,27 +1,26 @@
-import pygame # pygame
+import pygame
 
+# initialise pygame
 pygame.init()
 
+# this is the width and height of the window the project will appear in
 WINDOWWIDTH = 800
 WINDOWHEIGHT = 600
 
+# this displays the window
 DISPLAY = pygame.display.set_mode([WINDOWWIDTH, WINDOWHEIGHT])
 
+# this sets the clock
 FPS = pygame.time.Clock()
 
+# these are some variables
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0,0,255)
-left = 50
-top = 50
-width = 40
-height = 40
-x_speed = 5
-y_speed = 5
-x_colour = RED
 
+# class that will not be in final project, keep for reference
 class BouncingRectangle(pygame.sprite.Sprite):
 
     def __init__(self, width, height):
@@ -60,7 +59,7 @@ class BouncingRectangle(pygame.sprite.Sprite):
         pygame.draw.line(self.image, self.x_colour, [0, 0], [self.rect.width, self.rect.height], 10)
         pygame.draw.line(self.image, self.x_colour, [0, self.rect.height], [self.rect.width, 0], 10)
 
-
+# this is the class of the hostiles in the game
 class Hostile(pygame.sprite.Sprite):
     def __init__(self, width, height):
         super().__init__()
@@ -68,6 +67,7 @@ class Hostile(pygame.sprite.Sprite):
         self.image.fill(WHITE)
         self.rect = self.image.get_rect()
 
+# this is the class of the walls in the game
 class Walls(pygame.sprite.Sprite):
     def __init__(self, width, height):
         super().__init__()
@@ -75,6 +75,7 @@ class Walls(pygame.sprite.Sprite):
         self.image.fill(BLUE)
         self.rect = self.image.get_rect()
 
+# this is the class of the player's character
 class MyCharacter(pygame.sprite.Sprite):
     def __init__(self, width, height):
         super().__init__()
@@ -136,6 +137,7 @@ class MyCharacter(pygame.sprite.Sprite):
         pass
     # TODO update (cant finish unless hostile and wall check are complete)
 
+# this is the class of the enemy character
 class MyEnemy(pygame.sprite.Sprite):
     def __init__(self, width, height):
         super().__init__()
@@ -161,6 +163,7 @@ class MyEnemy(pygame.sprite.Sprite):
     def update(self, wall_group, hostile_group, direction):
         pass
 
+# this is the class of the attack
 class Attack(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -172,21 +175,24 @@ class Attack(pygame.sprite.Sprite):
     def update(self):
         pass
 
-
+# this sprite group is for the hostiles
 my_hostile = Hostile(15, 15)
 hostile_group = pygame.sprite.Group()
 hostile_group.add(my_hostile)
 
+# this sprite group is for the walls
 my_wall = Walls(5, 50)
 wall_group = pygame.sprite.Group()
 wall_group.add(my_wall)
 
+# this sprite group is for the characters
 my_character = MyCharacter(50, 50)
 my_enemy = MyEnemy(30, 30)
 my_group = pygame.sprite.Group()
 my_group.add(my_character)
 my_group.add(my_enemy)
 
+# this is the mouse position
 mos_pos = pygame.mouse.get_pos()
 
 while True:
@@ -197,14 +203,18 @@ while True:
         if event.type == pygame.QUIT:
             quit()
 
-
+    # this fills the display in black
     DISPLAY.fill((BLACK))
 
     #my_group.update(mos_pos)
+
+    # this draws the groups onto the display
     my_group.draw(DISPLAY)
     hostile_group.draw(DISPLAY)
     wall_group.draw(DISPLAY)
 
+    # this updates the display
     pygame.display.update()
 
+    # this sets the clock speed
     FPS.tick(30)
