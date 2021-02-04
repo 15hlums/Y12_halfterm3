@@ -59,22 +59,6 @@ class BouncingRectangle(pygame.sprite.Sprite):
         pygame.draw.line(self.image, self.x_colour, [0, 0], [self.rect.width, self.rect.height], 10)
         pygame.draw.line(self.image, self.x_colour, [0, self.rect.height], [self.rect.width, 0], 10)
 
-# this is the class of the hostiles in the game
-class Hostile(pygame.sprite.Sprite):
-    def __init__(self, width, height):
-        super().__init__()
-        self.image = pygame.Surface([width, height])
-        self.image.fill(WHITE)
-        self.rect = self.image.get_rect()
-
-# this is the class of the walls in the game
-class Walls(pygame.sprite.Sprite):
-    def __init__(self, width, height):
-        super().__init__()
-        self.image = pygame.Surface([width, height])
-        self.image.fill(BLUE)
-        self.rect = self.image.get_rect()
-
 # this is the class of the player's character
 class MyCharacter(pygame.sprite.Sprite):
     def __init__(self, width, height):
@@ -134,8 +118,26 @@ class MyCharacter(pygame.sprite.Sprite):
         checks if there is a wall and does not move if one is detected
         does not return anything
         '''
+        self.rect.left += self.move_speed
+        if self.rect.right >= WINDOWWIDTH:
+            self.move_speed *= -1
+            self.rect.x += self.move_speed
+        if self.rect.left <= 0:
+            self.move_speed *= -1
+            self.rect.x += self.move_speed
+
+        self.rect.top += self.move_speed
+        if self.rect.bottom >= WINDOWHEIGHT:
+            self.move_speed *= -1
+            self.rect.y += self.move_speed
+        if self.rect.top <= 0:
+            self.move_speed *= -1
+            self.rect.y += self.move_speed
+
+        if self.rect.right or self.rect.left or self.rect.top or self.rect.bottom >= wall_group:
+            self.move_speed = 0
+
         pass
-    # TODO update (cant finish unless hostile and wall check are complete)
 
 # this is the class of the enemy character
 class MyEnemy(pygame.sprite.Sprite):
@@ -175,6 +177,22 @@ class Attack(pygame.sprite.Sprite):
     def update(self):
         pass
 
+# this is the class of the hostiles in the game
+class Hostile(pygame.sprite.Sprite):
+    def __init__(self, width, height):
+        super().__init__()
+        self.image = pygame.Surface([width, height])
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+
+# this is the class of the walls in the game
+class Walls(pygame.sprite.Sprite):
+    def __init__(self, width, height):
+        super().__init__()
+        self.image = pygame.Surface([width, height])
+        self.image.fill(BLUE)
+        self.rect = self.image.get_rect()
+
 # this sprite group is for the hostiles
 my_hostile = Hostile(15, 15)
 hostile_group = pygame.sprite.Group()
@@ -184,6 +202,11 @@ hostile_group.add(my_hostile)
 my_wall = Walls(5, 50)
 wall_group = pygame.sprite.Group()
 wall_group.add(my_wall)
+
+# this sprite group is for the attack
+my_attack = Attack()
+attack_group = pygame.sprite.Group()
+attack_group.add(my_attack)
 
 # this sprite group is for the characters
 my_character = MyCharacter(50, 50)
@@ -212,6 +235,7 @@ while True:
     my_group.draw(DISPLAY)
     hostile_group.draw(DISPLAY)
     wall_group.draw(DISPLAY)
+    # attack_group(DISPLAY)
 
     # this updates the display
     pygame.display.update()
