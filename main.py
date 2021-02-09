@@ -1,5 +1,4 @@
 import pygame
-import random
 
 # initialise pygame
 pygame.init()
@@ -245,9 +244,6 @@ my_group.add(my_enemy)
 mos_pos = pygame.mouse.get_pos()
 
 while True:
-
-    my_character.rect.x = 10
-    my_character.rect.y = 10
 
     for event in pygame.event.get():
         if event.type == pygame.MOUSEMOTION:
