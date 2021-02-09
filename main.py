@@ -126,16 +126,12 @@ class MyCharacter(pygame.sprite.Sprite):
         key_input = pygame.key.get_pressed()
         if key_input[pygame.K_LEFT]:
             my_character.rect.x -= 10
-            print('left')
         if key_input[pygame.K_UP]:
             my_character.rect.y -= 10
-            print('up')
         if key_input[pygame.K_RIGHT]:
             my_character.rect.x += 10
-            print('right')
         if key_input[pygame.K_DOWN]:
             my_character.rect.y += 10
-            print('down')
 
         self.rect.left += self.move_speed
         if self.rect.right >= WINDOWWIDTH:
@@ -216,15 +212,15 @@ class Walls(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.Surface([width, height])
         self.image.fill(BLUE)
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect(topleft=(200, 280))
 
-# this sprite group is for the hostiles
+    # this sprite group is for the hostiles
 my_hostile = Hostile(15, 15)
 hostile_group = pygame.sprite.Group()
 hostile_group.add(my_hostile)
 
 # this sprite group is for the walls
-my_wall = Walls(5, 50)
+my_wall = Walls(25, 200)
 wall_group = pygame.sprite.Group()
 wall_group.add(my_wall)
 
