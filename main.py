@@ -123,9 +123,20 @@ class MyCharacter(pygame.sprite.Sprite):
         checks if there is a wall and does not move if one is detected
         does not return anything
         '''
-        pos = pygame.mouse.get_pos()
-        self.rect.x = pos[0]
-        self.rect.y = pos[1]
+
+        key_input = pygame.key.get_pressed()
+        if key_input[pygame.K_LEFT]:
+            my_character.rect.x -= 10
+            print('left')
+        if key_input[pygame.K_UP]:
+            my_character.rect.y -= 10
+            print('up')
+        if key_input[pygame.K_RIGHT]:
+            my_character.rect.x += 10
+            print('right')
+        if key_input[pygame.K_DOWN]:
+            my_character.rect.y += 10
+            print('down')
 
         self.rect.left += self.move_speed
         if self.rect.right >= WINDOWWIDTH:
@@ -235,20 +246,20 @@ mos_pos = pygame.mouse.get_pos()
 
 while True:
 
+    my_character.rect.x = 10
+    my_character.rect.y = 10
+
     for event in pygame.event.get():
         if event.type == pygame.MOUSEMOTION:
             mos_pos = pygame.mouse.get_pos()
-        if event.type == pygame.KEYDOWN:
-            print('down')
-        if event.type == pygame.KEYUP:
-            print('up')
         if event.type == pygame.QUIT:
             quit()
+
 
     # this fills the display in black
     DISPLAY.fill((BLACK))
 
-    my_group.update(hostile_group, wall_group, 'right')
+    my_group.update(hostile_group, wall_group, 'up')
 
     # this draws the groups onto the display
     my_group.draw(DISPLAY)
