@@ -20,45 +20,6 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0,0,255)
 
-# class that will not be in final project, keep for reference
-class BouncingRectangle(pygame.sprite.Sprite):
-
-    def __init__(self, width, height):
-        super().__init__()
-        self.image = pygame.Surface([width, height])
-        self.rect = self.image.get_rect()
-
-        self.x_colour = RED
-
-        self.image.fill(WHITE)
-        pygame.draw.line(self.image, self.x_colour, self.rect.topleft, self.rect.bottomright, 10)
-        pygame.draw.line(self.image, self.x_colour, self.rect.bottomleft, self.rect.topright, 10)
-
-        self.x_speed = 5
-        self.y_speed = 5
-
-    def update(self, mos_pos):
-        self.rect.left += self.x_speed
-        if self.rect.right >= WINDOWWIDTH:
-            self.x_speed *= -1
-        if self.rect.left <= 0:
-            self.x_speed *= -1
-
-        self.rect.top += self.y_speed
-        if self.rect.bottom >= WINDOWHEIGHT:
-            self.y_speed *= -1
-        if self.rect.top <= 0:
-            self.y_speed *= -1
-
-        if self.rect.x < mos_pos[0] < self.rect.x + self.rect.width:
-            if self.rect.y < mos_pos[1] < self.rect.y + self.rect.height:
-                self.x_colour = GREEN
-        else:
-            self.x_colour = RED
-
-        pygame.draw.line(self.image, self.x_colour, [0, 0], [self.rect.width, self.rect.height], 10)
-        pygame.draw.line(self.image, self.x_colour, [0, self.rect.height], [self.rect.width, 0], 10)
-
 # this is the class of the player's character
 class MyCharacter(pygame.sprite.Sprite):
     def __init__(self, width, height):
