@@ -1,4 +1,5 @@
 import pygame
+import random
 
 # initialise pygame
 pygame.init()
@@ -66,12 +67,16 @@ class MyCharacter(pygame.sprite.Sprite):
         self.max_health = 3
         self.attack_damage = 2
         self.move_speed = 10
-        self.name = MyCharacter
+        self.name = 'MyCharacter'
         self.current_health = 2
 
         self.image = pygame.Surface([width, height])
         self.image.fill(GREEN)
         self.rect = self.image.get_rect()
+
+    def position(self):
+        self.rect.y = 0
+        self.rect.x = 0
 
     def collide_hostile_check(self, hostile_group):
         '''
@@ -118,6 +123,10 @@ class MyCharacter(pygame.sprite.Sprite):
         checks if there is a wall and does not move if one is detected
         does not return anything
         '''
+        pos = pygame.mouse.get_pos()
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
         self.rect.left += self.move_speed
         if self.rect.right >= WINDOWWIDTH:
             self.move_speed *= -1
@@ -150,8 +159,11 @@ class MyEnemy(pygame.sprite.Sprite):
         self.image.fill(RED)
         self.rect = self.image.get_rect()
 
-    def collide_wall_check(self, wall_group, direction):
-        return (False, None)
+    def collide_wall_check(self, wall_group):
+        if pygame.sprite.spritecollide(my_wall, wall_group, False):
+            return(True, print('collided wall'))
+        else:
+            return (False, None)
 
     def collide_hostile_check(self, hostile_group):
         '''
@@ -160,7 +172,10 @@ class MyEnemy(pygame.sprite.Sprite):
         Returns (True, [list of collided sprites]) if collisions have occurred
         Returns (False, []) if no collisions have occurred
         '''
-        return (False, [])
+        if pygame.sprite.spritecollide(my_wall, hostile_group, False):
+            return(True, [hostile_group])
+        else:
+            return(False, [])
 
     def update(self, wall_group, hostile_group, direction):
         pass
@@ -223,19 +238,23 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.MOUSEMOTION:
             mos_pos = pygame.mouse.get_pos()
+        if event.type == pygame.KEYDOWN:
+            print('down')
+        if event.type == pygame.KEYUP:
+            print('up')
         if event.type == pygame.QUIT:
             quit()
 
     # this fills the display in black
     DISPLAY.fill((BLACK))
 
-    #my_group.update(mos_pos)
+    my_group.update(hostile_group, wall_group, 'right')
 
     # this draws the groups onto the display
     my_group.draw(DISPLAY)
     hostile_group.draw(DISPLAY)
     wall_group.draw(DISPLAY)
-    # attack_group(DISPLAY)
+    #attack_group(DISPLAY)
 
     # this updates the display
     pygame.display.update()
