@@ -56,7 +56,7 @@ class MyCharacter(pygame.sprite.Sprite):
         Returns (True, collided wall) if a collision has occurred
         Returns (False, None) if a collision has not occurred
         '''
-        if pygame.sprite.spritecollide(my_character, wall_group, False):
+        if pygame.sprite.spritecollide(my_character, wall_group, True):
             return(True, print('collided wall'))
         else:
             return (False, None)
