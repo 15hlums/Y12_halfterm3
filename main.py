@@ -58,8 +58,17 @@ class MyCharacter(pygame.sprite.Sprite):
         Returns (True, collided wall) if a collision has occurred
         Returns (False, None) if a collision has not occurred
         '''
-        pass
-
+        for my_wall in wall_group:
+            if self.rect.bottom > 230:
+                if self.rect.right < 211:
+                    if pygame.sprite.collide_rect(my_character, my_wall):
+                        self.rect.x = 145
+                if self.rect.right > 229:
+                    if pygame.sprite.collide_rect(my_wall, my_character):
+                        self.rect.x = 230
+                else:
+                    if pygame.sprite.collide_rect(my_character, my_wall):
+                        self.rect.y = 220
 
     def damage_or_healing(self, amount):
         '''
@@ -208,6 +217,7 @@ while True:
         if event.type == pygame.QUIT:
             quit()
 
+    # this lets the main character respawn back into window if exceeds boundary
     if my_character.rect.bottom > WINDOWHEIGHT:
         my_character.rect.top = 0
     if my_character.rect.top < 0:
@@ -216,6 +226,8 @@ while True:
         my_character.rect.left = 0
     if my_character.rect.left < 0:
         my_character.rect.right = WINDOWWIDTH
+
+    my_character.collide_wall_check(wall_group)
 
     # this fills the display in black
     DISPLAY.fill((BLACK))
@@ -234,7 +246,6 @@ while True:
     # this sets the clock speed
     FPS.tick(30)
 
-# TODO fix wall as green goes through the wall so make wall solid
 # TODO make collisions come up with a warning
 # TODO make enemy multiple and moving on own (not arrows or mouse)
 # TODO make sure the collisions with the enemy give a warning too
