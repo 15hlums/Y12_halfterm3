@@ -37,10 +37,6 @@ class MyCharacter(pygame.sprite.Sprite):
         self.image.fill(GREEN)
         self.rect = self.image.get_rect()
 
-    def position(self):
-        self.rect.y = 0
-        self.rect.x = 0
-
     def collide_hostile_check(self, hostile_group):
         '''
         Takes input of a sprite group categorized as hostile
@@ -121,10 +117,22 @@ class MyEnemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
     def collide_wall_check(self, wall_group):
-        if pygame.sprite.spritecollide(my_wall, wall_group, False):
-            return(True, print('collided wall'))
-        else:
-            return (False, None)
+        for my_wall in wall_group:
+            if self.rect.bottom > 230:
+                if self.rect.right < 211:
+                    if pygame.sprite.collide_rect(my_character, my_wall):
+                        self.rect.x = 145
+                        return True, 'collided wall'
+                if self.rect.right > 229:
+                    if pygame.sprite.collide_rect(my_wall, my_character):
+                        self.rect.x = 230
+                        return True, 'collided wall'
+                else:
+                    if pygame.sprite.collide_rect(my_character, my_wall):
+                        self.rect.y = 220
+                        return True, 'collided wall'
+            else:
+                return False, None
 
     def collide_hostile_check(self, hostile_group):
         '''
@@ -139,7 +147,16 @@ class MyEnemy(pygame.sprite.Sprite):
             return(False, [])
 
     def update(self, wall_group, hostile_group, direction):
-        pass
+
+        key_input = pygame.key.get_pressed()
+        if key_input[pygame.K_a]:
+            my_enemy.rect.x -= 10
+        if key_input[pygame.K_w]:
+            my_enemy.rect.y -= 10
+        if key_input[pygame.K_d]:
+            my_enemy.rect.x += 10
+        if key_input[pygame.K_s]:
+            my_enemy.rect.y += 10
 
 # this is the class of the attack
 class Attack(pygame.sprite.Sprite):
@@ -190,6 +207,8 @@ class Walls(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(200, 280))
 
     # this sprite group is for the hostiles
+
+# this sprite class is for the hostiles
 my_hostile1 = Hostile(25, 25)
 my_hostile2 = Hostile(25, 25)
 my_hostile3 = Hostile(25, 25)
@@ -214,7 +233,7 @@ attack_group.add(my_attack)
 
 # this sprite group is for the characters
 my_character = MyCharacter(50, 50)
-my_enemy = MyEnemy(30, 30)
+my_enemy = MyEnemy(50, 50)
 my_group = pygame.sprite.Group()
 my_group.add(my_character)
 my_group.add(my_enemy)
@@ -239,6 +258,16 @@ while True:
         my_character.rect.left = 0
     if my_character.rect.left < 0:
         my_character.rect.right = WINDOWWIDTH
+
+    # this lets the enemy character respawn back into window if exceeds boundary
+    if my_enemy.rect.bottom > WINDOWHEIGHT:
+        my_enemy.rect.top = 0
+    if my_enemy.rect.top < 0:
+        my_enemy.rect.bottom = WINDOWHEIGHT
+    if my_enemy.rect.right > WINDOWWIDTH:
+        my_enemy.rect.left = 0
+    if my_enemy.rect.left < 0:
+        my_enemy.rect.right = WINDOWWIDTH
 
 
     my_character.collide_wall_check(wall_group)
