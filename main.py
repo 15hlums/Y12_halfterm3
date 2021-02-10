@@ -63,12 +63,17 @@ class MyCharacter(pygame.sprite.Sprite):
                 if self.rect.right < 211:
                     if pygame.sprite.collide_rect(my_character, my_wall):
                         self.rect.x = 145
+                        return True, 'collided wall'
                 if self.rect.right > 229:
                     if pygame.sprite.collide_rect(my_wall, my_character):
                         self.rect.x = 230
+                        return True, 'collided wall'
                 else:
                     if pygame.sprite.collide_rect(my_character, my_wall):
                         self.rect.y = 220
+                        return True, 'collided wall'
+            else:
+                return False, None
 
     def damage_or_healing(self, amount):
         '''
@@ -175,6 +180,16 @@ class Hostile(pygame.sprite.Sprite):
         self.image = pygame.Surface([width, height])
         self.image.fill(WHITE)
         self.rect = self.image.get_rect()
+        self.speed = [15, 15]
+
+    def update(self):
+        self.rect.x = self.rect.x + self.speed[0]
+        if self.rect.right > WINDOWWIDTH or self.rect.left < 0:
+            self.speed[0] *= -1
+
+        self.rect.y = self.rect.y + self.speed[1]
+        if self.rect.bottom > WINDOWHEIGHT or self.rect.top < 0:
+            self.speed[1] *= -1
 
 # this is the class of the walls in the game
 class Walls(pygame.sprite.Sprite):
@@ -185,7 +200,7 @@ class Walls(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(200, 280))
 
     # this sprite group is for the hostiles
-my_hostile = Hostile(15, 15)
+my_hostile = Hostile(25, 25)
 hostile_group = pygame.sprite.Group()
 hostile_group.add(my_hostile)
 
@@ -227,12 +242,14 @@ while True:
     if my_character.rect.left < 0:
         my_character.rect.right = WINDOWWIDTH
 
+
     my_character.collide_wall_check(wall_group)
 
     # this fills the display in black
     DISPLAY.fill((BLACK))
 
     my_group.update(hostile_group, wall_group, 'up')
+    my_hostile.update()
 
     # this draws the groups onto the display
     my_group.draw(DISPLAY)
@@ -246,7 +263,6 @@ while True:
     # this sets the clock speed
     FPS.tick(30)
 
-# TODO make collisions come up with a warning
 # TODO make enemy multiple and moving on own (not arrows or mouse)
 # TODO make sure the collisions with the enemy give a warning too
 # TODO get the attack to work
