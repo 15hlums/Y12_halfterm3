@@ -1,4 +1,5 @@
 import pygame
+import random
 
 # initialise pygame
 pygame.init()
@@ -108,27 +109,6 @@ class MyCharacter(pygame.sprite.Sprite):
         if key_input[pygame.K_DOWN]:
             my_character.rect.y += 10
 
-        self.rect.left += self.move_speed
-        if self.rect.right >= WINDOWWIDTH:
-            self.move_speed *= -1
-            self.rect.x += self.move_speed
-        if self.rect.left <= 0:
-            self.move_speed *= -1
-            self.rect.x += self.move_speed
-
-        self.rect.top += self.move_speed
-        if self.rect.bottom >= WINDOWHEIGHT:
-            self.move_speed *= -1
-            self.rect.y += self.move_speed
-        if self.rect.top <= 0:
-            self.move_speed *= -1
-            self.rect.y += self.move_speed
-
-        if self.rect.right or self.rect.left or self.rect.top or self.rect.bottom >= wall_group:
-            self.move_speed = 0
-
-        pass
-
 # this is the class of the enemy character
 class MyEnemy(pygame.sprite.Sprite):
     def __init__(self, width, height):
@@ -180,7 +160,24 @@ class Hostile(pygame.sprite.Sprite):
         self.image = pygame.Surface([width, height])
         self.image.fill(WHITE)
         self.rect = self.image.get_rect()
-        self.speed = [15, 15]
+        self.speed = [random.randrange(5, 15), random.randrange(5, 15)]
+
+    def collide_wall_check(self, wall_group):
+        '''
+        Takes input of a sprite group categorized as walls
+        Returns (True, collided wall) if a collision has occurred
+        Returns (False, None) if a collision has not occurred
+        '''
+        for my_wall in wall_group:
+            if self.rect.top > my_wall.rect.top and self.rect.bottom < my_wall.rect.bottom:
+                if self.rect.right > my_wall.rect.left:
+                    self.speed[0] *= -1
+            #if self.rect.left < my_wall.rect.right:
+                #self.speed[0] *= -1
+            #if self.rect.bottom > my_wall.rect.top:
+                #self.speed[1] *= -1
+            #if self.rect.top > my_wall.rect.bottom:
+                #self.speed[1] *= -1
 
     def update(self):
         self.rect.x = self.rect.x + self.speed[0]
@@ -200,9 +197,17 @@ class Walls(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(200, 280))
 
     # this sprite group is for the hostiles
-my_hostile = Hostile(25, 25)
+my_hostile1 = Hostile(25, 25)
+#my_hostile2 = Hostile(25, 25)
+#my_hostile3 = Hostile(25, 25)
+#my_hostile4 = Hostile(25, 25)
+#my_hostile5 = Hostile(25, 25)
 hostile_group = pygame.sprite.Group()
-hostile_group.add(my_hostile)
+hostile_group.add(my_hostile1)
+#hostile_group.add(my_hostile2)
+#hostile_group.add(my_hostile3)
+#hostile_group.add(my_hostile4)
+#hostile_group.add(my_hostile5)
 
 # this sprite group is for the walls
 my_wall = Walls(25, 200)
@@ -245,11 +250,14 @@ while True:
 
     my_character.collide_wall_check(wall_group)
 
+    my_hostile1.collide_wall_check(wall_group)
+
     # this fills the display in black
     DISPLAY.fill((BLACK))
 
     my_group.update(hostile_group, wall_group, 'up')
-    my_hostile.update()
+
+    hostile_group.update()
 
     # this draws the groups onto the display
     my_group.draw(DISPLAY)
@@ -263,6 +271,7 @@ while True:
     # this sets the clock speed
     FPS.tick(30)
 
+# TODO make hostile not go through wall
 # TODO make enemy multiple and moving on own (not arrows or mouse)
 # TODO make sure the collisions with the enemy give a warning too
 # TODO get the attack to work
