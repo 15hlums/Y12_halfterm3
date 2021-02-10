@@ -3,6 +3,8 @@ import pygame
 # initialise pygame
 pygame.init()
 
+pygame.display.set_caption('The Game...')
+
 # this is the width and height of the window the project will appear in
 WINDOWWIDTH = 800
 WINDOWHEIGHT = 600
@@ -56,10 +58,8 @@ class MyCharacter(pygame.sprite.Sprite):
         Returns (True, collided wall) if a collision has occurred
         Returns (False, None) if a collision has not occurred
         '''
-        if pygame.sprite.spritecollide(my_character, wall_group, True):
-            return(True, print('collided wall'))
-        else:
-            return (False, None)
+        pass
+
 
     def damage_or_healing(self, amount):
         '''
@@ -208,6 +208,14 @@ while True:
         if event.type == pygame.QUIT:
             quit()
 
+    if my_character.rect.bottom > WINDOWHEIGHT:
+        my_character.rect.top = 0
+    if my_character.rect.top < 0:
+        my_character.rect.bottom = WINDOWHEIGHT
+    if my_character.rect.right > WINDOWWIDTH:
+        my_character.rect.left = 0
+    if my_character.rect.left < 0:
+        my_character.rect.right = WINDOWWIDTH
 
     # this fills the display in black
     DISPLAY.fill((BLACK))
@@ -225,3 +233,11 @@ while True:
 
     # this sets the clock speed
     FPS.tick(30)
+
+# TODO fix wall as green goes through the wall so make wall solid
+# TODO make collisions come up with a warning
+# TODO make enemy multiple and moving on own (not arrows or mouse)
+# TODO make sure the collisions with the enemy give a warning too
+# TODO get the attack to work
+# TODO make sure collisions cost lives (read up on health and stuff)
+# TODO maybe make characters more interesting (better colours?)
