@@ -16,13 +16,13 @@ DISPLAY = pygame.display.set_mode([WINDOWWIDTH, WINDOWHEIGHT])
 # this sets the clock
 FPS = pygame.time.Clock()
 
-# these are some variables
+# these are some variables of colour
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0,0,255)
-PURPLE = (148,0,211)
+PURPLE = (148, 0, 211)
 
 # this is the class of the player's character
 class MyCharacter(pygame.sprite.Sprite):
@@ -88,6 +88,20 @@ class MyCharacter(pygame.sprite.Sprite):
             return True
         elif self.current_health <= 0:
             return False
+
+    def attack(self, attack_group):
+        '''
+        Take input of attack_group
+        Creates a sprite of your attack:
+            Attack can be melee or ranged
+            Melee should be a rectangle that will persist for 3 frames
+            Ranged will a small rectangle that will update in a the direction you last moved until it hits the screen or a wall
+            returns None
+        Build this sprite above and then create an object here
+        Adds this sprite to a group called attacks
+        '''
+        my_attack.rect.x = self.rect.x
+        my_attack.rect.y = self.rect.y
 
     def update(self, hostile_group, wall_group, direction):
         '''
@@ -192,7 +206,6 @@ class Attack(pygame.sprite.Sprite):
                 pygame.sprite.groupcollide(attack_group, hostile_group, True, True)
             if hostile == my_hostile5:
                 pygame.sprite.groupcollide(attack_group, hostile_group, True, True)
-
 
     def update(self):
         key_input = pygame.key.get_pressed()
@@ -343,6 +356,10 @@ while True:
 
     #my_attack.collide_hostile_check(hostile_group)
 
+    # this places the attack on the main character
+    my_attack.rect.center = my_character.rect.center
+    my_attack.rect.left = my_character.rect.right
+
     # this fills the display in black
     DISPLAY.fill((BLACK))
 
@@ -366,6 +383,8 @@ while True:
     # this sets the clock speed
     FPS.tick(30)
 
-# TODO get the attack to go with the green blob
+# TODO get the attack fly for certain amount of frames
+# TODO when attack hits hostile kill hostile
+# TODO damage and healing function of my_character
 # TODO make sure collisions cost lives (read up on health and stuff)
 # TODO maybe make characters more interesting (better colours?)
