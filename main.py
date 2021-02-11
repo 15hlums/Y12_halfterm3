@@ -22,6 +22,7 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0,0,255)
+PURPLE = (148,0,211)
 
 # this is the class of the player's character
 class MyCharacter(pygame.sprite.Sprite):
@@ -46,7 +47,6 @@ class MyCharacter(pygame.sprite.Sprite):
         '''
         if pygame.sprite.groupcollide(my_group, hostile_group, False, False):
              self.current_health -= 1
-             print('Life Lost')
              return True, [hostile_group]
         else:
             return False, []
@@ -143,9 +143,8 @@ class MyEnemy(pygame.sprite.Sprite):
         Returns (True, [list of collided sprites]) if collisions have occurred
         Returns (False, []) if no collisions have occurred
         '''
-        if pygame.sprite.groupcollide(my_group, hostile_group, False, False):
+        if pygame.sprite.spritecollide(my_enemy, hostile_group, False):
             self.health -= 1
-            print('Life Lost')
             return True, [hostile_group]
         else:
             return False, []
@@ -164,24 +163,50 @@ class MyEnemy(pygame.sprite.Sprite):
 
 # this is the class of the attack
 class Attack(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, width, height):
         super().__init__()
-        self.damage = None
-        self.mode = None
-        self.count = None
-        self.move_speed = None
-        self.direction = None
+        self.damage = 2
+        self.mode = 'range'
+        self.count = 40
+        self.move_speed = 50
+        self.direction = 'right'
+
+        self.image = pygame.Surface([width, height])
+        self.image.fill(PURPLE)
+        self.rect = self.image.get_rect()
+
+    def collide_hostile_check(self, hostile_group):
+        '''
+        Takes input of a sprite group categorized as hostile
+        Compares own rectangle to sprite rectangle and checks for collisions
+        Deletes both sprites if a collision has occured
+        '''
+        for hostile in hostile_group:
+            if hostile == my_hostile1:
+                pygame.sprite.groupcollide(attack_group, hostile_group, True, True)
+            if hostile == my_hostile2:
+                pygame.sprite.groupcollide(attack_group, hostile_group, True, True)
+            if hostile == my_hostile3:
+                pygame.sprite.groupcollide(attack_group, hostile_group, True, True)
+            if hostile == my_hostile4:
+                pygame.sprite.groupcollide(attack_group, hostile_group, True, True)
+            if hostile == my_hostile5:
+                pygame.sprite.groupcollide(attack_group, hostile_group, True, True)
+
+
     def update(self):
         pass
 
 # this is the class of the hostiles in the game
 class Hostile(pygame.sprite.Sprite):
-    def __init__(self, width, height):
+    def __init__(self, width, height, x, y):
         super().__init__()
         self.image = pygame.Surface([width, height])
         self.image.fill(WHITE)
         self.rect = self.image.get_rect()
-        self.speed = [random.randrange(5, 20), random.randrange(5, 20)]
+        self.speed = [random.randrange(2, 15), random.randrange(2, 15)]
+        self.rect.x = x
+        self.rect.y = y
 
     def collide_wall_check(self, wall_group):
         '''
@@ -202,11 +227,11 @@ class Hostile(pygame.sprite.Sprite):
                     self.speed[0] *= -1
 
     def update(self):
-        self.rect.x = self.rect.x + self.speed[0]
+        self.rect.x += self.speed[0]
         if self.rect.right > WINDOWWIDTH or self.rect.left < 0:
             self.speed[0] *= -1
 
-        self.rect.y = self.rect.y + self.speed[1]
+        self.rect.y += self.speed[1]
         if self.rect.bottom > WINDOWHEIGHT or self.rect.top < 0:
             self.speed[1] *= -1
 
@@ -221,11 +246,11 @@ class Walls(pygame.sprite.Sprite):
     # this sprite group is for the hostiles
 
 # this sprite class is for the hostiles
-my_hostile1 = Hostile(25, 25)
-my_hostile2 = Hostile(25, 25)
-my_hostile3 = Hostile(25, 25)
-my_hostile4 = Hostile(25, 25)
-my_hostile5 = Hostile(25, 25)
+my_hostile1 = Hostile(25, 25, 0, 100)
+my_hostile2 = Hostile(25, 25, 0, 300)
+my_hostile3 = Hostile(25, 25, 0, 500)
+my_hostile4 = Hostile(25, 25, 750, 200)
+my_hostile5 = Hostile(25, 25, 750, 400)
 hostile_group = pygame.sprite.Group()
 hostile_group.add(my_hostile1)
 hostile_group.add(my_hostile2)
@@ -239,7 +264,7 @@ wall_group = pygame.sprite.Group()
 wall_group.add(my_wall)
 
 # this sprite group is for the attack
-my_attack = Attack()
+my_attack = Attack(5, 10)
 attack_group = pygame.sprite.Group()
 attack_group.add(my_attack)
 
@@ -296,6 +321,8 @@ while True:
     my_hostile4.collide_wall_check(wall_group)
     my_hostile5.collide_wall_check(wall_group)
 
+    #my_attack.collide_hostile_check(hostile_group)
+
     # this fills the display in black
     DISPLAY.fill((BLACK))
 
@@ -303,13 +330,14 @@ while True:
     my_group.update(hostile_group, wall_group, 'up')
     enemy_group.update(hostile_group, wall_group, 'up')
     hostile_group.update()
+    attack_group.update()
 
     # this draws the groups onto the display
     my_group.draw(DISPLAY)
     enemy_group.draw(DISPLAY)
     hostile_group.draw(DISPLAY)
     wall_group.draw(DISPLAY)
-    #attack_group(DISPLAY)
+    attack_group.draw(DISPLAY)
 
 
     # this updates the display
