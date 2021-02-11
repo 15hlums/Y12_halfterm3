@@ -44,10 +44,12 @@ class MyCharacter(pygame.sprite.Sprite):
         Returns (True, [list of collided sprites]) if collisions have occurred
         Returns (False, []) if no collisions have occurred
         '''
-        if pygame.sprite.spritecollide(my_character, hostile_group, False):
-            return(True, [hostile_group])
+        if pygame.sprite.groupcollide(my_group, hostile_group, False, False):
+             self.current_health -= 1
+             print('Life Lost')
+             return True, [hostile_group]
         else:
-            return(False, [])
+            return False, []
 
     def collide_wall_check(self, wall_group):
         '''
@@ -120,15 +122,15 @@ class MyEnemy(pygame.sprite.Sprite):
         for my_wall in wall_group:
             if self.rect.bottom > 230:
                 if self.rect.right < 211:
-                    if pygame.sprite.collide_rect(my_character, my_wall):
+                    if pygame.sprite.collide_rect(my_enemy, my_wall):
                         self.rect.x = 145
                         return True, 'collided wall'
                 if self.rect.right > 229:
-                    if pygame.sprite.collide_rect(my_wall, my_character):
+                    if pygame.sprite.collide_rect(my_wall, my_enemy):
                         self.rect.x = 230
                         return True, 'collided wall'
                 else:
-                    if pygame.sprite.collide_rect(my_character, my_wall):
+                    if pygame.sprite.collide_rect(my_enemy, my_wall):
                         self.rect.y = 220
                         return True, 'collided wall'
             else:
@@ -141,10 +143,12 @@ class MyEnemy(pygame.sprite.Sprite):
         Returns (True, [list of collided sprites]) if collisions have occurred
         Returns (False, []) if no collisions have occurred
         '''
-        if pygame.sprite.spritecollide(my_wall, hostile_group, False):
-            return(True, [hostile_group])
+        if pygame.sprite.groupcollide(my_group, hostile_group, False, False):
+            self.health -= 1
+            print('Life Lost')
+            return True, [hostile_group]
         else:
-            return(False, [])
+            return False, []
 
     def update(self, wall_group, hostile_group, direction):
 
@@ -177,7 +181,7 @@ class Hostile(pygame.sprite.Sprite):
         self.image = pygame.Surface([width, height])
         self.image.fill(WHITE)
         self.rect = self.image.get_rect()
-        self.speed = [random.randrange(5, 15), random.randrange(5, 15)]
+        self.speed = [random.randrange(5, 20), random.randrange(5, 20)]
 
     def collide_wall_check(self, wall_group):
         '''
@@ -187,6 +191,14 @@ class Hostile(pygame.sprite.Sprite):
         '''
         for my_wall in wall_group:
                 if pygame.sprite.collide_rect(my_hostile1, my_wall):
+                    self.speed[0] *= -1
+                if pygame.sprite.collide_rect(my_hostile2, my_wall):
+                    self.speed[0] *= -1
+                if pygame.sprite.collide_rect(my_hostile3, my_wall):
+                    self.speed[0] *= -1
+                if pygame.sprite.collide_rect(my_hostile4, my_wall):
+                    self.speed[0] *= -1
+                if pygame.sprite.collide_rect(my_hostile5, my_wall):
                     self.speed[0] *= -1
 
     def update(self):
@@ -231,12 +243,15 @@ my_attack = Attack()
 attack_group = pygame.sprite.Group()
 attack_group.add(my_attack)
 
-# this sprite group is for the characters
+# this sprite group is for the character
 my_character = MyCharacter(50, 50)
-my_enemy = MyEnemy(50, 50)
 my_group = pygame.sprite.Group()
 my_group.add(my_character)
-my_group.add(my_enemy)
+
+# this sprite group is for the enemy
+my_enemy = MyEnemy(50, 50)
+enemy_group = pygame.sprite.Group()
+enemy_group.add(my_enemy)
 
 # this is the mouse position
 mos_pos = pygame.mouse.get_pos()
@@ -269,9 +284,12 @@ while True:
     if my_enemy.rect.left < 0:
         my_enemy.rect.right = WINDOWWIDTH
 
+    # this checks if anything has collided with the hostiles
+    my_character.collide_hostile_check(hostile_group)
 
+    # this checks if anything has collided with the wall
     my_character.collide_wall_check(wall_group)
-
+    my_enemy.collide_wall_check(wall_group)
     my_hostile1.collide_wall_check(wall_group)
     my_hostile2.collide_wall_check(wall_group)
     my_hostile3.collide_wall_check(wall_group)
@@ -281,15 +299,18 @@ while True:
     # this fills the display in black
     DISPLAY.fill((BLACK))
 
+    # this updates things
     my_group.update(hostile_group, wall_group, 'up')
-
+    enemy_group.update(hostile_group, wall_group, 'up')
     hostile_group.update()
 
     # this draws the groups onto the display
     my_group.draw(DISPLAY)
+    enemy_group.draw(DISPLAY)
     hostile_group.draw(DISPLAY)
     wall_group.draw(DISPLAY)
     #attack_group(DISPLAY)
+
 
     # this updates the display
     pygame.display.update()
@@ -297,8 +318,6 @@ while True:
     # this sets the clock speed
     FPS.tick(30)
 
-# TODO make enemy
-# TODO make sure the collisions with the enemy give a warning too
 # TODO get the attack to work
 # TODO make sure collisions cost lives (read up on health and stuff)
 # TODO maybe make characters more interesting (better colours?)
