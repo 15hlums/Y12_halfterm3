@@ -4,7 +4,7 @@ import random
 # initialise pygame
 pygame.init()
 
-pygame.display.set_caption('The Game...')
+pygame.display.set_caption('King Gizzard and the Lizard Wizard')
 
 # this is the width and height of the window the project will appear in
 WINDOWWIDTH = 800
@@ -28,11 +28,11 @@ PURPLE = (148, 0, 211)
 class MyCharacter(pygame.sprite.Sprite):
     def __init__(self, width, height):
         super().__init__()
-        self.max_health = 3
-        self.attack_damage = 2
+        self.max_health = 25
+        self.attack_damage = 1
         self.move_speed = 10
         self.name = 'MyCharacter'
-        self.current_health = 2
+        self.current_health = 20
 
         self.image = pygame.Surface([width, height])
         self.image.fill(GREEN)
@@ -47,9 +47,14 @@ class MyCharacter(pygame.sprite.Sprite):
         '''
         if pygame.sprite.groupcollide(my_group, hostile_group, False, False):
              self.current_health -= 1
-             return True, [hostile_group]
+             print('Green Health = ', self.current_health)
+             return True, self.current_health
+        if pygame.sprite.groupcollide(my_group, enemy_group, False, False):
+            self.current_health = 0
+            print('Green and Red Collided!')
+            return True, self.current_health
         else:
-            return False, []
+            return False
 
     def collide_wall_check(self, wall_group):
         '''
@@ -74,7 +79,7 @@ class MyCharacter(pygame.sprite.Sprite):
             else:
                 return False, None
 
-    def damage_or_healing(self, amount):
+    def damage_or_healing(self):
         '''
         Takes input of damage (negative) or healing (positive)
         Calculates  if you are dead
@@ -82,26 +87,15 @@ class MyCharacter(pygame.sprite.Sprite):
         returns False if current health <=0 (dead)
         returns True if current health > 0
         '''
-        self.current_health += amount
 
         if self.current_health > 0:
             return True
         elif self.current_health <= 0:
             return False
 
-    def attack(self, attack_group):
-        '''
-        Take input of attack_group
-        Creates a sprite of your attack:
-            Attack can be melee or ranged
-            Melee should be a rectangle that will persist for 3 frames
-            Ranged will a small rectangle that will update in a the direction you last moved until it hits the screen or a wall
-            returns None
-        Build this sprite above and then create an object here
-        Adds this sprite to a group called attacks
-        '''
-        my_attack.rect.x = self.rect.x
-        my_attack.rect.y = self.rect.y
+    def attack(self, hostile_group):
+        if hostile_group == None:
+            return True
 
     def update(self, hostile_group, wall_group, direction):
         '''
@@ -123,14 +117,16 @@ class MyCharacter(pygame.sprite.Sprite):
 
 # this is the class of the enemy character
 class MyEnemy(pygame.sprite.Sprite):
-    def __init__(self, width, height):
+    def __init__(self, width, height, x, y):
         super().__init__()
-        self.health = 5
+        self.health = 20
         self.move_speed = 10
 
         self.image = pygame.Surface([width, height])
         self.image.fill(RED)
         self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
     def collide_wall_check(self, wall_group):
         for my_wall in wall_group:
@@ -159,9 +155,24 @@ class MyEnemy(pygame.sprite.Sprite):
         '''
         if pygame.sprite.spritecollide(my_enemy, hostile_group, False):
             self.health -= 1
-            return True, [hostile_group]
+            print('Red Health = ', self.health)
+            return True, self.health
         else:
-            return False, []
+            return False
+
+    def damage_or_healing(self):
+        '''
+        Takes input of damage (negative) or healing (positive)
+        Calculates  if you are dead
+        Changes your current health by the amount input
+        returns False if current health <=0 (dead)
+        returns True if current health > 0
+        '''
+
+        if self.health > 0:
+            return True
+        elif self.health <= 0:
+            return False
 
     def update(self, wall_group, hostile_group, direction):
 
@@ -197,20 +208,52 @@ class Attack(pygame.sprite.Sprite):
         '''
         for hostile in hostile_group:
             if hostile == my_hostile1:
-                pygame.sprite.groupcollide(attack_group, hostile_group, True, True)
+                if pygame.sprite.collide_rect(my_attack, my_hostile1):
+                    my_hostile1.kill()
             if hostile == my_hostile2:
-                pygame.sprite.groupcollide(attack_group, hostile_group, True, True)
+                if pygame.sprite.collide_rect(my_attack, my_hostile2):
+                    my_hostile2.kill()
             if hostile == my_hostile3:
-                pygame.sprite.groupcollide(attack_group, hostile_group, True, True)
+                if pygame.sprite.collide_rect(my_attack, my_hostile3):
+                    my_hostile3.kill()
             if hostile == my_hostile4:
-                pygame.sprite.groupcollide(attack_group, hostile_group, True, True)
+                if pygame.sprite.collide_rect(my_attack, my_hostile4):
+                    my_hostile4.kill()
             if hostile == my_hostile5:
-                pygame.sprite.groupcollide(attack_group, hostile_group, True, True)
+                if pygame.sprite.collide_rect(my_attack, my_hostile5):
+                    my_hostile5.kill()
+
+            if hostile == my_hostile1:
+                if pygame.sprite.collide_rect(other_attack, my_hostile1):
+                    my_hostile1.kill()
+            if hostile == my_hostile2:
+                if pygame.sprite.collide_rect(other_attack, my_hostile2):
+                    my_hostile2.kill()
+            if hostile == my_hostile3:
+                if pygame.sprite.collide_rect(other_attack, my_hostile3):
+                    my_hostile3.kill()
+            if hostile == my_hostile4:
+                if pygame.sprite.collide_rect(other_attack, my_hostile4):
+                    my_hostile4.kill()
+            if hostile == my_hostile5:
+                if pygame.sprite.collide_rect(other_attack, my_hostile5):
+                    my_hostile5.kill()
+
+    def position(self):
+        my_attack.rect.center = my_character.rect.center
+        my_attack.rect.left = my_character.rect.right
+
+        other_attack.rect.center = my_enemy.rect.center
+        other_attack.rect.right = my_enemy.rect.left
 
     def update(self):
         key_input = pygame.key.get_pressed()
-        if key_input[pygame.K_SPACE]:
+        if key_input[pygame.K_SPACE]: # for my_character
             my_attack.rect.x += 10
+            my_attack.rect.x += self.move_speed
+        if key_input[pygame.K_RETURN]: # for my_enemy
+            other_attack.rect.x -= 10
+            other_attack.rect.x -= self.move_speed
 
 # this is the class of the hostiles in the game
 class Hostile(pygame.sprite.Sprite):
@@ -280,8 +323,10 @@ wall_group.add(my_wall)
 
 # this sprite group is for the attack
 my_attack = Attack(25, 5)
+other_attack = Attack(25, 5)
 attack_group = pygame.sprite.Group()
 attack_group.add(my_attack)
+attack_group.add(other_attack)
 
 # this sprite group is for the character
 my_character = MyCharacter(50, 50)
@@ -289,7 +334,7 @@ my_group = pygame.sprite.Group()
 my_group.add(my_character)
 
 # this sprite group is for the enemy
-my_enemy = MyEnemy(50, 50)
+my_enemy = MyEnemy(50, 50, 750, 550)
 enemy_group = pygame.sprite.Group()
 enemy_group.add(my_enemy)
 
@@ -301,6 +346,15 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.MOUSEMOTION:
             mos_pos = pygame.mouse.get_pos()
+        if my_character.damage_or_healing() == False:
+            print('GAME OVER')
+            quit()
+        if my_enemy.damage_or_healing() == False:
+            print('GAME OVER')
+            quit()
+        if len(hostile_group) == 0:
+            print('WIN!')
+            quit()
         if event.type == pygame.QUIT:
             quit()
 
@@ -342,8 +396,31 @@ while True:
         my_attack = Attack(25, 5)
         attack_group.add(my_attack)
 
+    # this respawns attack if it goes outside of the boundaries
+    if other_attack.rect.right > WINDOWWIDTH:
+        other_attack.kill()
+        other_attack = Attack(25, 5)
+        attack_group.add(other_attack)
+    if other_attack.rect.left < 0:
+        other_attack.kill()
+        other_attack = Attack(25, 5)
+        attack_group.add(other_attack)
+    if other_attack.rect.bottom > WINDOWWIDTH:
+        other_attack.kill()
+        other_attack = Attack(25, 5)
+        attack_group.add(other_attack)
+    if other_attack.rect.top < 0:
+        other_attack.kill()
+        other_attack = Attack(25, 5)
+        attack_group.add(other_attack)
+
+
+    # attack position
+    my_attack.position()
+
     # this checks if anything has collided with the hostiles
     my_character.collide_hostile_check(hostile_group)
+    my_enemy.collide_hostile_check(hostile_group)
 
     # this checks if anything has collided with the wall
     my_character.collide_wall_check(wall_group)
@@ -354,11 +431,8 @@ while True:
     my_hostile4.collide_wall_check(wall_group)
     my_hostile5.collide_wall_check(wall_group)
 
-    #my_attack.collide_hostile_check(hostile_group)
-
-    # this places the attack on the main character
-    my_attack.rect.center = my_character.rect.center
-    my_attack.rect.left = my_character.rect.right
+    # checks if anything has collided with the attack
+    my_attack.collide_hostile_check(hostile_group)
 
     # this fills the display in black
     DISPLAY.fill((BLACK))
@@ -382,9 +456,3 @@ while True:
 
     # this sets the clock speed
     FPS.tick(30)
-
-# TODO get the attack fly for certain amount of frames
-# TODO when attack hits hostile kill hostile
-# TODO damage and healing function of my_character
-# TODO make sure collisions cost lives (read up on health and stuff)
-# TODO maybe make characters more interesting (better colours?)
