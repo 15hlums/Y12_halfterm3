@@ -195,7 +195,9 @@ class Attack(pygame.sprite.Sprite):
 
 
     def update(self):
-        pass
+        key_input = pygame.key.get_pressed()
+        if key_input[pygame.K_SPACE]:
+            my_attack.rect.x += 10
 
 # this is the class of the hostiles in the game
 class Hostile(pygame.sprite.Sprite):
@@ -264,7 +266,7 @@ wall_group = pygame.sprite.Group()
 wall_group.add(my_wall)
 
 # this sprite group is for the attack
-my_attack = Attack(5, 10)
+my_attack = Attack(25, 5)
 attack_group = pygame.sprite.Group()
 attack_group.add(my_attack)
 
@@ -309,6 +311,24 @@ while True:
     if my_enemy.rect.left < 0:
         my_enemy.rect.right = WINDOWWIDTH
 
+    # this respawns attack if it goes outside of the boundaries
+    if my_attack.rect.right > WINDOWWIDTH:
+        my_attack.kill()
+        my_attack = Attack(25, 5)
+        attack_group.add(my_attack)
+    if my_attack.rect.left < 0:
+        my_attack.kill()
+        my_attack = Attack(25, 5)
+        attack_group.add(my_attack)
+    if my_attack.rect.bottom > WINDOWWIDTH:
+        my_attack.kill()
+        my_attack = Attack(25, 5)
+        attack_group.add(my_attack)
+    if my_attack.rect.top < 0:
+        my_attack.kill()
+        my_attack = Attack(25, 5)
+        attack_group.add(my_attack)
+
     # this checks if anything has collided with the hostiles
     my_character.collide_hostile_check(hostile_group)
 
@@ -346,6 +366,6 @@ while True:
     # this sets the clock speed
     FPS.tick(30)
 
-# TODO get the attack to work
+# TODO get the attack to go with the green blob
 # TODO make sure collisions cost lives (read up on health and stuff)
 # TODO maybe make characters more interesting (better colours?)
